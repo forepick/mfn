@@ -1,5 +1,8 @@
 const http = require('http');
 const https = require('https');
+const stochastic = require('./oscillators/stochastic');
+const source = require('./sources/investing.com');
+const average = require('./oscillators/average');
 
 const hostname = '127.0.0.1';
 const port = 3000;
@@ -13,7 +16,17 @@ const server = http.createServer((req, res) => {
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 });*/
+async function process(){
+    let raw = await source.get();
 
+    console.log(average(raw, 50));
+
+}
+
+process();
+
+
+/*
 https.get('https://tvc4.forexpros.com/06ccf5b9bc0a776b6b8cad099d6899a1/1580040219/1/1/8/history?symbol=42595&resolution=D&from=1548936242&to=1580040302', (resp) => {
     let data = '';
 
@@ -31,8 +44,8 @@ https.get('https://tvc4.forexpros.com/06ccf5b9bc0a776b6b8cad099d6899a1/158004021
             return a;
         }, {tot:0, count: 0});
         console.log(total)
-
+        console.log(stochastic(obj.o));
 
     });
 
-})
+})*/
