@@ -1,20 +1,23 @@
+const core = require('./core');
+
+
 module.exports = function(values, length) {
+
     if(values.c < length){
         return null;
     }
+
+
     let c = values.c;
-    let sums = [];
-    let sum = 0;
-    for (let i = 0; i < c.length; i++){
-        sum += c[i];
-        sums[i] = sum;
-        if(i >= length) {
-            sums[i] -= sums[i - length];
-        }
-    }
+
+    let avg = core.rolling(function(sublist){
+        return sublist.reduce(function (accumulator, currentValue){
+            return accumulator + currentValue;
+        }, 0) / sublist.length;
+    }, c, length)
 
     return {
-        c_a: sums.slice(length - 1, sums.length).map(s => s / length),
-        t: values.t.slice(length - 1, sums.length)
+        c_a: avg,
+        t: values.t.slice(length - 1, values.length)
     };
 }
