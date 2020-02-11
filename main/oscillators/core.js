@@ -1,4 +1,5 @@
 module.exports = {
+
     rolling: function(op, list, window){
         let result = [];
         for (let i = 0, len = list.length; i < len; i++) {
@@ -14,6 +15,14 @@ module.exports = {
             result[i] = op(...i_list(i));
         }
         return result;
+    },
+    mean: function(list){
+        return list.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / list.length;
+    },
+    avg: function(list, window){
+        let op = sublist =>
+            this.mean(sublist);
+        return this.rolling(op, list, window);
     }
 }
 

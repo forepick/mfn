@@ -18,6 +18,6 @@ module.exports = function(values, length) {
 
     return {
         c_a: avg,
-        t: values.t.slice(length - 1, values.length)
+        t: values.t.slice(length - 1, avg.length)
     };
 }
