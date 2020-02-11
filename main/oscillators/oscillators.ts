@@ -82,3 +82,60 @@ export function bb($close: Array<number>, window: number, mult: number) {
     let lower = pointwise((a: number, b: number) => a - b * mult, ma, dev);
     return { lower : lower, middle : ma, upper : upper };
 }
+
+/* price transformations */
+
+export function typicalPrice($high: Array<number>, $low: Array<number>, $close: Array<number>) {
+    return pointwise((a: number, b: number, c: number) => (a + b + c) / 3, $high, $low, $close);
+}
+
+export function trueRange($high: Array<number>, $low: Array<number>, $close: Array<number>) {
+    let tr = [$high[0] - $low[0]];
+    for (let i = 1, len = $low.length; i < len; i++) {
+        tr.push(Math.max($high[i] - $low[i], Math.abs($high[i] - $close[i - 1]), Math.abs($low[i] - $close[i - 1])));
+    }
+    return tr;
+}
+
+/* Wilder's functions */
+
+export function atr($high: Array<number>, $low: Array<number>, $close: Array<number>, window: number) {
+    let tr = trueRange($high, $low, $close);
+    return ema(tr, 2 * window - 1);
+}
+
+export function wilderSmooth(series: Array<number>, window: number) {
+
+    let result = Array.apply(null, Array(window)).map(Number.prototype.valueOf, NaN);
+    result.push(series.slice(1, window + 1).reduce((sum, item) => { return sum += item}, 0));
+    for(let i = window + 1; i < series.length; i++) {
+        result.push((1 - 1 / window) * result[i - 1] + series[i]);
+    }
+    return result;
+}
+
+export function adx($values, window: number) {
+
+    let $low = $values.l;
+    let $high = $values.h;
+    let $close = $values.c;
+
+    let dmp = [0], dmm = [0];
+    for(let i = 1, len = $low.length; i < len; i++) {
+        let hd = $high[i] - $high[i - 1];
+        let ld = $low[i - 1] - $low[i];
+        dmp.push((hd > ld) ? Math.max(hd, 0) : 0);
+        dmm.push((ld > hd) ? Math.max(ld, 0) : 0);
+    }
+    let str = wilderSmooth(trueRange($high, $low, $close), window);
+    dmp = wilderSmooth(dmp, window);
+    dmm = wilderSmooth(dmm, window);
+    let dip = pointwise((a: number, b: number) => 100 * a / b, dmp, str);
+    let dim = pointwise((a: number, b: number) => 100 * a / b, dmm, str);
+    let dx = pointwise((a: number, b: number) => 100 * Math.abs(a - b) / (a + b), dip, dim);
+    return {dip: dip, dim: dim, adx: Array.apply(null, Array(14)).map(Number.prototype.valueOf ,NaN).concat(ema(dx.slice(14), 2 * window - 1))};
+}
+
+export function dmi($values, window: number) {
+    return adx($values, window);
+}

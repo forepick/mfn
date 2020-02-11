@@ -33,6 +33,7 @@ async function process(){
     let rsi14 = oscillators.rsi(raw.c, 14);
     let macd = oscillators.macd(raw.c, 12, 26, 9);
     let bb = oscillators.bb(raw.c, 20, 2);
+    let adx = oscillators.adx(raw, 14);
 
     console.log("h=" + raw.h.reverse()[0]);
     console.log("l=" + raw.l.reverse()[0]);
@@ -56,6 +57,9 @@ async function process(){
     console.log("bb lower=" + bb.lower.reverse()[0]);
     console.log("bb middle=" + bb.middle.reverse()[0]);
     console.log("bb upper=" + bb.upper.reverse()[0]);
+    console.log("adx dip=" + adx.dip.reverse()[0]);
+    console.log("adx dim=" + adx.dim.reverse()[0]);
+    console.log("adx adx=" + adx.adx.reverse()[0]);
 
 }
 
