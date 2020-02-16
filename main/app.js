@@ -18,11 +18,15 @@ server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 });*/
 
+Array.prototype.last = function() {
+    return this[this.length -1];
+}
+
 async function process(){
     let raw = await source.get();
 
     //fs.writeFileSync('./investing.com.wix.json', JSON.stringify(raw, null, 2));
-
+    
     let stoch = oscillators.stoch(raw, 12, 3, 3);
 
     let ma20 = average(raw, 20);
@@ -35,31 +39,34 @@ async function process(){
     let bb = oscillators.bb(raw.c, 20, 2);
     let adx = oscillators.adx(raw, 14);
 
-    console.log("h=" + raw.h.reverse()[0]);
-    console.log("l=" + raw.l.reverse()[0]);
-    console.log("c=" + raw.c.reverse()[0]);
-    console.log("o=" + raw.o.reverse()[0]);
+    console.log("h=" + raw.h.last());
+    console.log("l=" + raw.l.last());
+    console.log("c=" + raw.c.last());
+    console.log("o=" + raw.o.last());
 
-    console.log("ma20=" + ma20.c_a.reverse()[0]);
-    console.log("ma50=" + ma50.c_a.reverse()[0]);
-    console.log("ma200=" + ma200.c_a.reverse()[0]);
-    console.log("ema3=" + ema3.reverse()[0]);
-    console.log("ema8=" + ema8.reverse()[0]);
+    console.log("ma20=" + ma20.c_a.last());
+    console.log("ma50=" + ma50.c_a.last());
+    console.log("ma200=" + ma200.c_a.last());
+    console.log("ema3=" + ema3.last());
+    console.log("ema8=" + ema8.last());
 
-    console.log("stoch line=" + stoch.line.reverse()[0]);
-    console.log("stoch signal=" + stoch.signal.reverse()[0]);
+    console.log("stoch line=" + stoch.line.last());
+    console.log("stoch line=" + stoch.line.last());
+    console.log("stoch line=" + stoch.line.last());
+    console.log("stoch line=" + stoch.line.last());
+    console.log("stoch signal=" + stoch.signal.last());
 
-    console.log("rsi=" + rsi14.reverse()[0]);
-    console.log("macd line=" + macd.line.reverse()[0]);
-    console.log("macd signal=" + macd.signal.reverse()[0]);
-    console.log("macd hist=" + macd.hist.reverse()[0]);
+    console.log("rsi=" + rsi14.last());
+    console.log("macd line=" + macd.line.last());
+    console.log("macd signal=" + macd.signal.last());
+    console.log("macd hist=" + macd.hist.last());
 
-    console.log("bb lower=" + bb.lower.reverse()[0]);
-    console.log("bb middle=" + bb.middle.reverse()[0]);
-    console.log("bb upper=" + bb.upper.reverse()[0]);
-    console.log("adx dip=" + adx.dip.reverse()[0]);
-    console.log("adx dim=" + adx.dim.reverse()[0]);
-    console.log("adx adx=" + adx.adx.reverse()[0]);
+    console.log("bb lower=" + bb.lower.last());
+    console.log("bb middle=" + bb.middle.last());
+    console.log("bb upper=" + bb.upper.last());
+    console.log("adx dip=" + adx.dip.last());
+    console.log("adx dim=" + adx.dim.last());
+    console.log("adx adx=" + adx.adx.last());
 
 }
 

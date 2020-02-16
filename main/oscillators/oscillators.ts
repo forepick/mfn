@@ -70,7 +70,7 @@ export function rsi($close: Array<number>, window: number) {
 
 export function macd($close: Array<number>, winshort: number, winlong: number, winsig: number) {
     const line = pointwise((a: number, b: number) => a - b, ema($close, winshort), ema($close, winlong));
-    const signal = ema(line, winsig);
+    const signal = sma(line, winsig);
     const hist = pointwise((a: number, b: number) => a - b, line, signal);
     return { line: line, signal: signal, hist: hist };
 }
