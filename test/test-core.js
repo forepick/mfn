@@ -1,5 +1,5 @@
 const assert = require('assert');
-const core = require('../main/oscillators/core')
+const core = require('../main/helpers/core')
 
 describe('Testing Core', function() {
     describe('Rolling Function', function() {

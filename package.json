@@ -21,6 +21,7 @@
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
+    "express": "^4.17.1",
     "mocha": "^7.0.1"
   }
 }
