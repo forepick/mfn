@@ -1,22 +1,13 @@
 const http = require('http');
 const https = require('https');
-const oscillators = require('./oscillators/oscillators');
+const oscillators = require('./helpers/oscillators');
 const source = require('./sources/local_file');
-const average = require('./oscillators/average');
+const average = require('./helpers/average');
+
+const express = require('express');
+const path = require('path');
 
 
-const hostname = '127.0.0.1';
-const port = 3000;
-
-const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Hello World');
-});
-/*
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
-});*/
 
 Array.prototype.last = function() {
     return this[this.length -1];
@@ -70,4 +61,39 @@ async function process(){
 
 }
 
-process();
+function runBackend(){
+
+    const hostname = '127.0.0.1';
+    const port = 3001;
+
+    const server = http.createServer(async function(req, res) {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        let rawData = await source.get();
+
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Headers", "*");
+        res.end(JSON.stringify(rawData));
+    });
+
+    server.listen(port, hostname, () => {
+        console.log(`Backend running at http://${hostname}:${port}/`);
+    });
+}
+function runFrontend(){
+
+    const port = 3000;
+    const app = express();
+
+    app.use(express.static(__dirname + '../../webapp/'));
+
+    app.get('*', function (request, response) {
+        response.sendFile(path.resolve(__dirname, '', 'index.html'));
+    });
+
+    app.listen(port);
+    console.log(`Frontend running at http://127.0.0.1:${port}/`);
+}
+runBackend();
+runFrontend();
+//process();

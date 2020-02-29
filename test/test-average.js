@@ -1,5 +1,5 @@
 const assert = require('assert');
-const average = require('../main/oscillators/average')
+const average = require('../main/helpers/average')
 
 describe('Moving Average', function() {
     describe('#indexOf()', function() {

@@ -1,0 +1,113 @@
+<html>
+<head>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <script src="js/easel.js"></script>
+</head>
+
+<body>
+    <canvas id="canvas">
+
+    </canvas>
+    <script>
+
+
+        let run = function(list, func) {
+            return list.map(v => func(v));
+        };
+
+        let draw = function(raw, range){
+            let canvas = document.getElementById("canvas");
+            let ctx = canvas.getContext('2d');
+
+
+            let highest = Math.max(...raw.h);
+            let lowest = Math.min(...raw.l);
+            let amplitude = highest - lowest;
+
+            let normalize = val => (val - lowest) / amplitude;
+
+            range = range || raw.t.length;
+
+
+            let W = window.innerWidth;
+            let H = window.innerHeight;
+
+            canvas.width = W;
+            canvas.height = H;
+
+            let w = W / range;
+
+            let stage = new createjs.Stage(canvas);
+            stage.enableMouseOver();
+            console.log(stage);
+
+            let nO = run(raw.o, normalize);
+            let nC = run(raw.c, normalize);
+            let nH = run(raw.h, normalize);
+            let nL = run(raw.l, normalize);
+
+            ctx.lineWidth = 0.5;
+
+
+            for (let len = raw.t.length, i = len - range; i < len; i++){
+
+                let color = nC[i] > nO[i] ? "#0F0" : "#F00";
+                let bottom = Math.min(nC[i], nO[i]);
+                let top = Math.max(nC[i], nO[i]);
+                let head = H * (nH[i] - top);
+                let tail = H * (bottom - nL[i]);
+                let ix = w * (i - (len - range));
+                let a = top - bottom;
+
+                let candleGraphics = new createjs.Graphics();
+                candleGraphics.beginFill(color).drawRect(0, 0, w - 1, H * a).endFill();
+                candleGraphics.setStrokeStyle(1);
+
+                candleGraphics.beginStroke(color);
+                candleGraphics.moveTo((w - 1) / 2, 0);
+                candleGraphics.lineTo((w - 1) / 2, -head);
+                candleGraphics.endStroke();
+
+                candleGraphics.beginStroke(color);
+                candleGraphics.moveTo((w - 1) / 2, H * a);
+                candleGraphics.lineTo((w - 1) / 2, H * a + tail);
+                candleGraphics.endStroke();
+
+                let candle = new createjs.Shape(candleGraphics);
+                candle.x = ix;
+                candle.y = H * (1 - top);
+                candle.cursor = "pointer";
+                console.log(candle.y);
+
+                stage.addChild(candle);
+            }
+
+            stage.update();
+
+        }
+
+        let process = async function(){
+            let resp = await fetch("http://localhost:3001/", {
+                headers: {
+                    "Access-Control-Allow-Origin": "*"
+                }
+            });
+
+            let raw = await resp.json();
+            draw(raw, 0);
+         };
+
+        process();
+
+    </script>
+</body>
+</html>

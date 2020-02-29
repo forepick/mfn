@@ -116,6 +116,8 @@ export function wilderSmooth(series: Array<number>, window: number) {
 
 export function adx($values, window: number) {
 
+    // TODO implemen t with 6 and 8 as arguments
+
     let $low = $values.l;
     let $high = $values.h;
     let $close = $values.c;
@@ -133,7 +135,7 @@ export function adx($values, window: number) {
     let dip = pointwise((a: number, b: number) => 100 * a / b, dmp, str);
     let dim = pointwise((a: number, b: number) => 100 * a / b, dmm, str);
     let dx = pointwise((a: number, b: number) => 100 * Math.abs(a - b) / (a + b), dip, dim);
-    return {dip: dip, dim: dim, adx: Array.apply(null, Array(14)).map(Number.prototype.valueOf ,NaN).concat(ema(dx.slice(14), 2 * window - 1))};
+    return {dip: dip, dim: dim, adx: Array.apply(null, Array(window)).map(Number.prototype.valueOf ,NaN).concat(ema(dx.slice(window), 2 * window - 1))};
 }
 
 export function dmi($values, window: number) {
