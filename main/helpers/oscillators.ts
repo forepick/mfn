@@ -7,7 +7,7 @@ export function pointwise(operation: Function, ...serieses: Array<Array<number>>
     return result;
 }
 
-export function rolling(operation: Function, series: Array<number>, window: number) {
+export function rolling(operation: Function, series: Array<number>, window: number, center: boolean = false) {
     let result = [];
     for (let i = 0, len = series.length; i < len; i++) {
         let j = i + 1 - window;

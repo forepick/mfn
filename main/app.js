@@ -1,3 +1,4 @@
+
 const http = require('http');
 const https = require('https');
 const oscillators = require('./helpers/oscillators');
@@ -53,7 +54,11 @@ async function process(){
     console.log("adx adx=" + adx.adx.reverse()[0]);
 
 }
-
+function enrich(rawData){
+    // TODO trendlines: calk troughs, find all possible no-crossing slopes, sort by max throughs close to the slope
+    let mins = minimas(rawData.c, rawData.o);
+    oscillators.sma(mins, 5)
+}
 function runBackend(){
 
     const hostname = '127.0.0.1';
@@ -63,6 +68,8 @@ function runBackend(){
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         let rawData = await source.get();
+
+        enrich(rawData);
 
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.setHeader("Access-Control-Allow-Headers", "*");
@@ -87,6 +94,78 @@ function runFrontend(){
     app.listen(port);
     console.log(`Frontend running at http://127.0.0.1:${port}/`);
 }
-runBackend();
-runFrontend();
-//process();
+//runBackend();
+//runFrontend();
+
+let list = [1,2,3,4,5,4,5,6,5,7,8,9,7,8,9];
+
+// TODO solve the constant value issue (constant value for a few indices)
+function throughs(values, smoothing) {
+    smoothing = smoothing || 1;
+    return values.map((v, k, l) => {
+        if (k < smoothing) return -1;
+        if (k >= l.length - smoothing) return -1;
+        for(let i = 1; i <= smoothing; i++){
+            if (v > l[k - i] || v > l[k + i]) return -1;
+        }
+        return k;
+    }).filter(i => i > -1);
+}
+
+
+function minimas(c, o){
+    return c.map((v, k) => Math.min(v, o[k]));
+}
+function maximas(c, o){
+    return c.map((v, k) => Math.max(v, o[k]));
+}
+function peaks(values) {
+    return values.map((v, k, l) => {
+        if (k < 1) return -1;
+        if (k >= l.length - 1) return -1;
+        if (v >= l[k - 1] && v > l[k + 1]) return k;
+        return -1;
+    }).filter(i => i > -1);
+}
+function findSlope(values){
+    let indices = throughs(values);
+    let res = [];
+    for (let i1 = 0; i1 < indices.length; i1++) {
+x1:     for (let i2 = i1 + 1; i2 < indices.length; i2++) {
+            console.log("new slope");
+            let k1 = indices[i1];
+            let k2 = indices[i2];
+            let dx = k2 - k1;
+            let dy = values[k2] - values[k1];
+            let slope = dy/dx;
+
+            let slopeScore = 0;
+            for(let i = 0; i < indices.length; i++){
+                if(i == i1 || i == i2){
+                    continue;
+                }
+                let k = indices[i];
+                let dxk = k - k1;
+                let ddy = dxk * slope;
+                let valueOnSlope = values[k1] + ddy;
+                let currentValue = values[k];
+
+                console.log(valueOnSlope, currentValue);
+
+                if(currentValue < valueOnSlope){
+                    continue x1;
+                }
+                let diff = Math.pow(currentValue - valueOnSlope, 2);
+                slopeScore += 100 * Math.exp(diff);
+            }
+            res.push({k1: k1, k2: k2, score: slopeScore, slope: slope});
+        }
+    }
+
+    res.sort((a,b) => a.score < b.score ? 1 : -1);
+    return res;
+}
+let slopes = findSlope(list);
+console.log(slopes);
+
+// iterate all slopes to find the best one
