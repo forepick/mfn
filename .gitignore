@@ -1,0 +1,7 @@
+.idea
+.history/*
+node_modules
+
+# ts files
+main/helpers/oscillators.js
+main/helpers/trendlines.js
