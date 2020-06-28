@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Graph</title>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/data.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/stock/indicators/indicators.js"></script>
+    <script src="https://code.highcharts.com/stock/indicators/stochastic.js"></script>
+</head>
+<body style="height: 100%">
+    <div id="container" style="height: 100%; min-width: 310px"></div>
+    <script>
+        Highcharts.getJSON('http://localhost:3001', function (data) {
+
+            // create the chart
+            Highcharts.stockChart('container', {
+
+
+                rangeSelector: {
+                    selected: 1
+                },
+
+                title: {
+                    text: 'WIX Stock Price'
+                },
+
+                legend: {
+                    enabled: true
+                },
+
+                plotOptions: {
+                    series: {
+                        showInLegend: true
+                    }
+                },
+
+                series: [{
+                    type: 'candlestick',
+                    name: 'WIX Stock Price',
+                    id: 'wix',
+                    data: data,
+                    dataGrouping: {
+                    }
+                }]
+            });
+        });
+
+    </script>
+</body>
+</html>

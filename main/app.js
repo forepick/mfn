@@ -6,6 +6,7 @@ const average = require('./helpers/average');
 
 const express = require('express');
 const path = require('path');
+const fetch = require('node-fetch');
 
 
 
@@ -65,6 +66,11 @@ function enrich(rawData){
     let mins = minimas(rawData.c, rawData.o);
     oscillators.sma(mins, 5)
 }
+
+function round(value, accuracy){
+    let mul = Math.pow(10, accuracy);
+    return Math.floor(value * mul) / mul;
+}
 function runBackend(){
 
     const hostname = '127.0.0.1';
@@ -75,11 +81,17 @@ function runBackend(){
         res.setHeader('Content-Type', 'application/json');
         let rawData = await source.get();
 
-        enrich(rawData);
+        //enrich(rawData);
+
+        let graphData = [];
+
+        for (let i = 0; i < rawData.t.length; i++){
+            graphData.push([rawData.t[i] * 1000, round(rawData.o[i], 2), round(rawData.h[i], 2), round(rawData.l[i], 2), round(rawData.c[i], 2)]);
+        }
 
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.setHeader("Access-Control-Allow-Headers", "*");
-        res.end(JSON.stringify(rawData));
+        res.end(JSON.stringify(graphData));
     });
 
     server.listen(port, hostname, () => {
@@ -94,14 +106,14 @@ function runFrontend(){
     app.use(express.static(__dirname + '../../webapp/'));
 
     app.get('*', function (request, response) {
-        response.sendFile(path.resolve(__dirname, '', 'index.html'));
+        response.sendFile(path.resolve(__dirname, '', 'graph.html'));
     });
 
     app.listen(port);
     console.log(`Frontend running at http://127.0.0.1:${port}/`);
 }
-//runBackend();
-//runFrontend();
+runBackend();
+runFrontend();
 
 let list = [1,2,3,4,5,4,5,6,5,7,8,9,7,8,9];
 
@@ -171,7 +183,9 @@ x1:     for (let i2 = i1 + 1; i2 < indices.length; i2++) {
     res.sort((a,b) => a.score < b.score ? 1 : -1);
     return res;
 }
+/*
 let slopes = findSlope(list);
-console.log(slopes);
+console.log(slopes);*/
+
 
 // iterate all slopes to find the best one
